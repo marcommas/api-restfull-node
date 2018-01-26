@@ -59,3 +59,21 @@ app.get('/api', function(req, res){
         });
     });
 });
+
+
+//GET by ID (ready)
+app.get('/api/:id', function(req, res){
+    db.open(function(err, mongoclient){
+        mongoclient.collection('postagens', function(err, collection){
+            collection.find(objectId(req.params.id)).toArray(function(err, results){
+                if(err){
+                    res.json(err);
+                }else{
+                    //status 500 para retorno com o documento
+                    res.status(500).json(results);
+                }
+                mongoclient.close();
+            });
+        });
+    });
+});

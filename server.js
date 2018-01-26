@@ -25,3 +25,20 @@ console.log('escutando porta ' + port);
 app.get('/', function(req, res){
     res.send({msg:'teste'});
 });
+
+//POST
+app.post('/api', function(req, res){
+    var dados = req.body;
+    db.open(function(err, mongoclient){
+        mongoclient.collection('postagens', function(err, collection){
+            collection.insert(dados, function(err, records){
+                if(err){
+                    res.json({'status': 'erro'});
+                }else{
+                    res.json({'status': 'inclusao realizada com sucesso'});
+                }
+                mongoclient.close();
+            });
+        });
+    });
+});

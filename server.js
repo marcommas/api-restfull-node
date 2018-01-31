@@ -28,6 +28,12 @@ app.get('/', function(req, res){
 
 //POST
 app.post('/api', function(req, res){
+    
+    //libera a api somente para o dominio localhost:80
+    //res.setHeader('Access-Control-Allow-Origin', 'http://localhost:80');
+    //libera a api para qualquer dominio
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    
     var dados = req.body;
     db.open(function(err, mongoclient){
         mongoclient.collection('postagens', function(err, collection){

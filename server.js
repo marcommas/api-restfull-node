@@ -1,5 +1,6 @@
 var express = require('express'),
     bodyParser = require('body-parser'),
+    multiparty = require('connect-multiparty'),
     mongodb = require('mongodb'),
     objectId = require('mongodb').ObjectId;
 
@@ -9,6 +10,7 @@ var app = express();
 // body-parser
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
+app.use(multiparty());
 
 var port = 8080;
 

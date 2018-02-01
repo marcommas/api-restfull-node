@@ -76,6 +76,12 @@ app.post('/api', function(req, res){
 
 //GET all
 app.get('/api', function(req, res){
+    
+    //libera a api somente para o dominio localhost:80
+    //res.setHeader('Access-Control-Allow-Origin', 'http://localhost:80');
+    //libera a api para qualquer dominio
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    
     db.open(function(err, mongoclient){
         mongoclient.collection('postagens', function(err, collection){
             collection.find().toArray(function(err, results){
@@ -90,6 +96,23 @@ app.get('/api', function(req, res){
     });
 });
 
+
+app.get('/imagens/:imagem', function(req, res){
+    
+    var img = req.params.imagem;
+   
+    fs.readFile('./uploads/'+img, function(err, conteudo){
+        if (err) {
+            res.status(400).json(err);
+            return;
+        }
+        
+        res.writeHead(200, { 'content-type' : 'image/jpg' });
+        res.end(conteudo);
+        
+    });
+    
+});
 
 //GET by ID (ready)
 app.get('/api/:id', function(req, res){

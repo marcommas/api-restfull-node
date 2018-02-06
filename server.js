@@ -13,6 +13,16 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 app.use(multiparty());
 
+app.use(function(req, res, next){
+    
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'content-type');
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    
+    next();
+});
+
 var port = 8080;
 
 app.listen(port);
@@ -35,7 +45,7 @@ app.post('/api', function(req, res){
     //libera a api somente para o dominio localhost:80
     //res.setHeader('Access-Control-Allow-Origin', 'http://localhost:80');
     //libera a api para qualquer dominio
-    res.setHeader('Access-Control-Allow-Origin', '*');
+//    res.setHeader('Access-Control-Allow-Origin', '*');
     
     var date = new Date();
     var time_stamp = date.getTime();
@@ -80,7 +90,7 @@ app.get('/api', function(req, res){
     //libera a api somente para o dominio localhost:80
     //res.setHeader('Access-Control-Allow-Origin', 'http://localhost:80');
     //libera a api para qualquer dominio
-    res.setHeader('Access-Control-Allow-Origin', '*');
+//    res.setHeader('Access-Control-Allow-Origin', '*');
     
     db.open(function(err, mongoclient){
         mongoclient.collection('postagens', function(err, collection){
@@ -138,7 +148,14 @@ app.put('/api/:id', function(req, res){
         mongoclient.collection('postagens', function(err, collection){
             collection.update(
                     { _id : objectId(req.params.id) },
-                    { $set : { titulo : req.body.titulo }},
+                    { $push : 
+                            { 
+                                comentarios : {
+                                    id_comentario : new objectId() ,
+                                    comentario : req.body.comentario
+                                }
+                            }
+                    },
                     {},
                     function(err, records){
                         if(err){
@@ -155,7 +172,32 @@ app.put('/api/:id', function(req, res){
 
 //DELETE by ID (remover)
 app.delete('/api/:id', function(req, res){
+    
     db.open(function(err, mongoclient){
+        mongoclient.collection('postagens', function(err, collection){
+            collection.update(
+                   {  },
+                   { $pull : 
+                           { 
+                               comentarios : {
+                                   id_comentario : objectId(req.params.id)
+                               }
+                           }
+                   },
+                   {multi: true},
+                   function(err, records){
+                       if(err){
+                           res.json(err);
+                       }else{
+                           res.json(records);
+                       }
+                       mongoclient.close();
+                   }
+               );
+        });
+    });
+    
+    /*db.open(function(err, mongoclient){
         mongoclient.collection('postagens', function(err, collection){
             collection.remove(
                     { _id : objectId(req.params.id) },
@@ -169,6 +211,6 @@ app.delete('/api/:id', function(req, res){
                     }
                 );
         });
-    });
+    });*/
 });
 
